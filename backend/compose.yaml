@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    container_name: mycontainer
+    ports:
+      - "80:80"
+    volumes:
+      - .:/code
+    # we use "fastapi dev" here for the hot-reloading
+    command: ["fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "80"]
+
+  db:
+    image: mysql:8.0
+    container_name: mydb
+    environment:
+      MYSQL_DATABASE: mech_ai_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
