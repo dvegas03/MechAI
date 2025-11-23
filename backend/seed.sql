@@ -4,10 +4,10 @@
 USE mech_ai_db;
 
 -- Drop existing tables in correct order (respecting foreign key constraints)
-DROP TABLE IF EXISTS Lesson_Instructions;
-DROP TABLE IF EXISTS Car_Lessons;
-DROP TABLE IF EXISTS Instructions;
-DROP TABLE IF EXISTS Lessons;
+DROP TABLE IF EXISTS Procedure_Steps;
+DROP TABLE IF EXISTS Car_Procedures;
+DROP TABLE IF EXISTS Steps;
+DROP TABLE IF EXISTS Procedures;
 DROP TABLE IF EXISTS Car;
 DROP TABLE IF EXISTS Make;
 
@@ -35,52 +35,53 @@ CREATE TABLE Car (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- TABLE: Lessons (Maintenance/Repair Topics)
+-- TABLE: Procedures (Maintenance/Repair Topics)
 -- ============================================
-CREATE TABLE Lessons (
-    LessonID INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Procedures (
+    ProcedureID INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(200) NOT NULL UNIQUE,
-    INDEX idx_lesson_name (Name)
+    Description TEXT,
+    INDEX idx_procedure_name (Name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- TABLE: Instructions (Reusable Instruction Steps)
+-- TABLE: Steps (Reusable Instruction Steps)
 -- ============================================
-CREATE TABLE Instructions (
-    InstructionID INT AUTO_INCREMENT PRIMARY KEY,
-    Text TEXT NOT NULL,
-    YOLOClasses VARCHAR(500),
-    INDEX idx_instruction_yolo (YOLOClasses(100))
+CREATE TABLE Steps (
+    StepID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(200) NOT NULL,
+    Body TEXT NOT NULL,
+    YOLOClass VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- TABLE: Car_Lessons (Many-to-Many Junction)
--- Links car models to applicable lessons
+-- TABLE: Car_Procedures (Many-to-Many Junction)
+-- Links car models to applicable procedures
 -- ============================================
-CREATE TABLE Car_Lessons (
+CREATE TABLE Car_Procedures (
     ModelID INT NOT NULL,
-    LessonID INT NOT NULL,
-    PRIMARY KEY (ModelID, LessonID),
+    ProcedureID INT NOT NULL,
+    PRIMARY KEY (ModelID, ProcedureID),
     FOREIGN KEY (ModelID) REFERENCES Car(ModelID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (LessonID) REFERENCES Lessons(LessonID) ON DELETE CASCADE ON UPDATE CASCADE,
-    INDEX idx_car_lessons_lesson (LessonID)
+    FOREIGN KEY (ProcedureID) REFERENCES Procedures(ProcedureID) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX idx_car_procedures_procedure (ProcedureID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- TABLE: Lesson_Instructions (Many-to-Many Junction with Ordering)
--- Links lessons to their instructions in sequential order
+-- TABLE: Procedure_Steps (Many-to-Many Junction with Ordering)
+-- Links procedures to their steps in sequential order
 -- ============================================
-CREATE TABLE Lesson_Instructions (
-    LessonID INT NOT NULL,
-    InstructionID INT NOT NULL,
-    StepNum INT NOT NULL,
-    PRIMARY KEY (LessonID, InstructionID),
-    UNIQUE KEY uk_lesson_step (LessonID, StepNum),
-    FOREIGN KEY (LessonID) REFERENCES Lessons(LessonID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (InstructionID) REFERENCES Instructions(InstructionID) ON DELETE CASCADE ON UPDATE CASCADE,
-    INDEX idx_lesson_instructions_instruction (InstructionID),
-    INDEX idx_lesson_instructions_step (StepNum),
-    CONSTRAINT chk_stepnum CHECK (StepNum > 0)
+CREATE TABLE Procedure_Steps (
+    ProcedureID INT NOT NULL,
+    StepID INT NOT NULL,
+    OrderNum INT NOT NULL,
+    PRIMARY KEY (ProcedureID, StepID),
+    UNIQUE KEY uk_procedure_order (ProcedureID, OrderNum),
+    FOREIGN KEY (ProcedureID) REFERENCES Procedures(ProcedureID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (StepID) REFERENCES Steps(StepID) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX idx_procedure_steps_step (StepID),
+    INDEX idx_procedure_steps_order (OrderNum),
+    CONSTRAINT chk_ordernum CHECK (OrderNum > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
@@ -138,109 +139,109 @@ INSERT INTO Car (ModelID, MakeID, ModelName, Year) VALUES
 (24, 10, 'CX-5', 2023);
 
 -- ============================================
--- SEED DATA: Lessons (Maintenance Topics)
+-- SEED DATA: Procedures (Maintenance Topics)
 -- ============================================
-INSERT INTO Lessons (LessonID, Name) VALUES
-(1, 'Oil Change'),
-(2, 'Brake Pad Replacement'),
-(3, 'Air Filter Replacement'),
-(4, 'Spark Plug Replacement'),
-(5, 'Tire Rotation'),
-(6, 'Battery Replacement'),
-(7, 'Coolant Flush'),
-(8, 'Transmission Fluid Change'),
-(9, 'Windshield Wiper Replacement'),
-(10, 'Headlight Bulb Replacement'),
-(11, 'Cabin Air Filter Replacement'),
-(12, 'Serpentine Belt Replacement'),
-(13, 'Brake Fluid Flush'),
-(14, 'Power Steering Fluid Check'),
-(15, 'Tire Pressure Check');
-
--- ============================================
--- SEED DATA: Instructions (Reusable Steps)
--- ============================================
-INSERT INTO Instructions (InstructionID, Text, YOLOClasses) VALUES
--- Oil Change Instructions (IDs 1-14)
-(1, 'Locate the oil drain plug underneath the vehicle', 'drain_plug,vehicle_underside,wrench'),
-(2, 'Place an oil pan underneath the drain plug', 'oil_pan,drain_plug'),
-(3, 'Use a wrench to loosen and remove the drain plug', 'wrench,drain_plug,hand'),
-(4, 'Allow oil to completely drain into the pan (5-10 minutes)', 'oil_pan,oil_stream'),
-(5, 'Replace the drain plug and tighten securely', 'drain_plug,wrench,hand'),
-(6, 'Locate the oil filter near the engine block', 'oil_filter,engine_block'),
-(7, 'Remove the old oil filter using an oil filter wrench', 'oil_filter,oil_filter_wrench,hand'),
-(8, 'Apply a thin layer of new oil to the new filter gasket', 'oil_filter,oil_bottle,hand'),
-(9, 'Install the new oil filter by hand, tightening firmly', 'oil_filter,hand'),
-(10, 'Open the hood and locate the oil fill cap', 'hood,oil_fill_cap,engine'),
-(11, 'Add the recommended amount of new oil', 'oil_bottle,funnel,oil_fill_cap'),
-(12, 'Replace the oil fill cap and close the hood', 'oil_fill_cap,hood'),
-(13, 'Start the engine and check for leaks', 'engine,vehicle_underside'),
-(14, 'Turn off the engine and check the oil level with dipstick', 'dipstick,hand'),
-
--- Brake Pad Replacement Instructions (IDs 15-32)
-(15, 'Park on a level surface and engage parking brake', 'vehicle,parking_brake'),
-(16, 'Loosen the lug nuts on the wheel (do not remove yet)', 'lug_wrench,wheel,lug_nuts'),
-(17, 'Jack up the vehicle to the appropriate height', 'jack,jack_point,vehicle'),
-(18, 'Place jack stands under the vehicle for safety', 'jack_stand,vehicle_frame'),
-(19, 'Remove the lug nuts and take off the wheel', 'lug_wrench,wheel,lug_nuts,hand'),
-(20, 'Locate the brake caliper and identify the mounting bolts', 'brake_caliper,caliper_bolts,brake_rotor'),
-(21, 'Remove the brake caliper bolts using appropriate socket', 'socket_wrench,caliper_bolts'),
-(22, 'Carefully lift the caliper off the brake rotor', 'brake_caliper,brake_rotor,hand'),
-(23, 'Support the caliper with wire or bungee cord', 'brake_caliper,wire_hanger'),
-(24, 'Remove the old brake pads from the caliper bracket', 'brake_pads,caliper_bracket,hand'),
-(25, 'Compress the caliper piston using a C-clamp or piston tool', 'c_clamp,caliper_piston,brake_caliper'),
-(26, 'Install the new brake pads into the caliper bracket', 'brake_pads,caliper_bracket,hand'),
-(27, 'Reposition the caliper over the new brake pads', 'brake_caliper,brake_pads'),
-(28, 'Reinstall and tighten the caliper bolts to specification', 'socket_wrench,caliper_bolts'),
-(29, 'Reinstall the wheel and hand-tighten the lug nuts', 'wheel,lug_nuts,hand'),
-(30, 'Lower the vehicle and tighten lug nuts in star pattern', 'lug_wrench,wheel,vehicle'),
-(31, 'Pump the brake pedal several times to seat the pads', 'brake_pedal,foot'),
-(32, 'Test drive at low speed and test brakes', 'vehicle,steering_wheel,brake_pedal'),
-
--- Air Filter Replacement Instructions (IDs 33-41)
-(33, 'Open the hood and locate the air filter housing', 'hood,air_filter_housing,engine'),
-(34, 'Release the clips or remove screws securing the housing cover', 'screwdriver,clips,air_filter_housing'),
-(35, 'Lift the housing cover to access the air filter', 'air_filter_housing,hand'),
-(36, 'Remove the old air filter from the housing', 'air_filter,air_filter_housing,hand'),
-(37, 'Clean any debris from inside the housing', 'rag,air_filter_housing'),
-(38, 'Insert the new air filter into the housing', 'air_filter,air_filter_housing,hand'),
-(39, 'Ensure the filter is properly seated', 'air_filter,air_filter_housing'),
-(40, 'Replace the housing cover and secure clips/screws', 'air_filter_housing,clips,screwdriver'),
-(41, 'Close the hood', 'hood,hand'),
-
--- Spark Plug Replacement Instructions (IDs 42-52)
-(42, 'Open the hood and locate the spark plug wires or coil packs', 'hood,spark_plug_wires,ignition_coils,engine'),
-(43, 'Remove the first spark plug wire or coil pack', 'spark_plug_wire,ignition_coil,hand'),
-(44, 'Use compressed air to clean around the spark plug', 'compressed_air,spark_plug_well'),
-(45, 'Use a spark plug socket to remove the old spark plug', 'spark_plug_socket,ratchet,spark_plug'),
-(46, 'Check the spark plug gap on the new plug', 'spark_plug,gap_tool,hand'),
-(47, 'Apply anti-seize compound to the plug threads (if recommended)', 'spark_plug,anti_seize,hand'),
-(48, 'Hand-thread the new spark plug into the cylinder head', 'spark_plug,hand'),
-(49, 'Tighten the spark plug to specified torque', 'spark_plug_socket,torque_wrench'),
-(50, 'Reconnect the spark plug wire or coil pack', 'spark_plug_wire,ignition_coil,hand'),
-(51, 'Repeat for all remaining spark plugs', 'spark_plugs,engine'),
-(52, 'Close the hood and start the engine', 'hood,ignition_key'),
-
--- Battery Replacement Instructions (IDs 53-66)
-(53, 'Turn off the engine and remove the key', 'ignition_key,hand'),
-(54, 'Open the hood and locate the battery', 'hood,battery,engine'),
-(55, 'Identify positive and negative battery terminals', 'battery,positive_terminal,negative_terminal'),
-(56, 'Disconnect the negative terminal first using a wrench', 'wrench,negative_terminal,battery'),
-(57, 'Disconnect the positive terminal', 'wrench,positive_terminal,battery'),
-(58, 'Remove the battery hold-down bracket or clamp', 'wrench,battery_clamp,battery'),
-(59, 'Carefully lift the old battery out of the vehicle', 'battery,hand'),
-(60, 'Clean the battery tray and terminals', 'wire_brush,battery_tray,terminals'),
-(61, 'Place the new battery in the tray', 'battery,battery_tray,hand'),
-(62, 'Install the battery hold-down bracket', 'battery_clamp,wrench,battery'),
-(63, 'Connect the positive terminal first and tighten', 'wrench,positive_terminal,battery'),
-(64, 'Connect the negative terminal and tighten', 'wrench,negative_terminal,battery'),
-(65, 'Apply terminal protector spray to prevent corrosion', 'terminal_protector,battery_terminals'),
-(66, 'Close the hood and test the vehicle', 'hood,ignition_key');
+INSERT INTO Procedures (ProcedureID, Name, Description) VALUES
+(1, 'Oil Change', 'Step-by-step guide to changing engine oil and oil filter'),
+(2, 'Brake Pad Replacement', 'Complete procedure for replacing worn brake pads'),
+(3, 'Air Filter Replacement', 'Quick and easy air filter replacement procedure'),
+(4, 'Spark Plug Replacement', 'Guide to replacing spark plugs for optimal engine performance'),
+(5, 'Tire Rotation', 'Procedure for rotating tires to ensure even wear'),
+(6, 'Battery Replacement', 'Complete guide to safely replacing a car battery'),
+(7, 'Coolant Flush', 'Procedure for flushing and replacing engine coolant'),
+(8, 'Transmission Fluid Change', 'Guide to changing transmission fluid'),
+(9, 'Windshield Wiper Replacement', 'Quick procedure for replacing windshield wiper blades'),
+(10, 'Headlight Bulb Replacement', 'Step-by-step guide to replacing headlight bulbs'),
+(11, 'Cabin Air Filter Replacement', 'Procedure for replacing the cabin air filter'),
+(12, 'Serpentine Belt Replacement', 'Guide to replacing the serpentine belt'),
+(13, 'Brake Fluid Flush', 'Procedure for flushing and replacing brake fluid'),
+(14, 'Power Steering Fluid Check', 'Guide to checking and topping off power steering fluid'),
+(15, 'Tire Pressure Check', 'Quick procedure for checking and adjusting tire pressure');
 
 -- ============================================
--- SEED DATA: Car_Lessons (Which lessons apply to which cars)
+-- SEED DATA: Steps (Reusable Instruction Steps)
 -- ============================================
-INSERT INTO Car_Lessons (ModelID, LessonID) VALUES
+INSERT INTO Steps (StepID, Title, Body, YOLOClass) VALUES
+-- Oil Change Steps (IDs 1-14)
+(1, 'Locate oil drain plug', 'Locate the oil drain plug underneath the vehicle', 'drain_plug'),
+(2, 'Position oil pan', 'Place an oil pan underneath the drain plug', 'oil_pan'),
+(3, 'Remove drain plug', 'Use a wrench to loosen and remove the drain plug', 'wrench'),
+(4, 'Drain oil completely', 'Allow oil to completely drain into the pan (5-10 minutes)', 'oil_stream'),
+(5, 'Replace drain plug', 'Replace the drain plug and tighten securely', 'drain_plug'),
+(6, 'Locate oil filter', 'Locate the oil filter near the engine block', 'oil_filter'),
+(7, 'Remove old oil filter', 'Remove the old oil filter using an oil filter wrench', 'oil_filter_wrench'),
+(8, 'Prepare new filter', 'Apply a thin layer of new oil to the new filter gasket', 'oil_bottle'),
+(9, 'Install new oil filter', 'Install the new oil filter by hand, tightening firmly', 'oil_filter'),
+(10, 'Locate oil fill cap', 'Open the hood and locate the oil fill cap', 'oil_fill_cap'),
+(11, 'Add new oil', 'Add the recommended amount of new oil', 'funnel'),
+(12, 'Close oil fill cap', 'Replace the oil fill cap and close the hood', 'oil_fill_cap'),
+(13, 'Check for leaks', 'Start the engine and check for leaks', 'vehicle_underside'),
+(14, 'Check oil level', 'Turn off the engine and check the oil level with dipstick', 'dipstick'),
+
+-- Brake Pad Replacement Steps (IDs 15-32)
+(15, 'Park and engage brake', 'Park on a level surface and engage parking brake', 'parking_brake'),
+(16, 'Loosen lug nuts', 'Loosen the lug nuts on the wheel (do not remove yet)', 'lug_wrench'),
+(17, 'Jack up vehicle', 'Jack up the vehicle to the appropriate height', 'jack'),
+(18, 'Place jack stands', 'Place jack stands under the vehicle for safety', 'jack_stand'),
+(19, 'Remove wheel', 'Remove the lug nuts and take off the wheel', 'wheel'),
+(20, 'Locate brake caliper', 'Locate the brake caliper and identify the mounting bolts', 'brake_caliper'),
+(21, 'Remove caliper bolts', 'Remove the brake caliper bolts using appropriate socket', 'socket_wrench'),
+(22, 'Lift off caliper', 'Carefully lift the caliper off the brake rotor', 'brake_caliper'),
+(23, 'Support caliper', 'Support the caliper with wire or bungee cord', 'wire_hanger'),
+(24, 'Remove old brake pads', 'Remove the old brake pads from the caliper bracket', 'brake_pads'),
+(25, 'Compress caliper piston', 'Compress the caliper piston using a C-clamp or piston tool', 'c_clamp'),
+(26, 'Install new brake pads', 'Install the new brake pads into the caliper bracket', 'brake_pads'),
+(27, 'Reposition caliper', 'Reposition the caliper over the new brake pads', 'brake_caliper'),
+(28, 'Tighten caliper bolts', 'Reinstall and tighten the caliper bolts to specification', 'socket_wrench'),
+(29, 'Reinstall wheel', 'Reinstall the wheel and hand-tighten the lug nuts', 'wheel'),
+(30, 'Lower and tighten', 'Lower the vehicle and tighten lug nuts in star pattern', 'lug_wrench'),
+(31, 'Pump brake pedal', 'Pump the brake pedal several times to seat the pads', 'brake_pedal'),
+(32, 'Test drive', 'Test drive at low speed and test brakes', 'steering_wheel'),
+
+-- Air Filter Replacement Steps (IDs 33-41)
+(33, 'Locate air filter housing', 'Open the hood and locate the air filter housing', 'air_filter_housing'),
+(34, 'Release housing cover', 'Release the clips or remove screws securing the housing cover', 'clips'),
+(35, 'Lift housing cover', 'Lift the housing cover to access the air filter', 'air_filter_housing'),
+(36, 'Remove old air filter', 'Remove the old air filter from the housing', 'air_filter'),
+(37, 'Clean housing', 'Clean any debris from inside the housing', 'rag'),
+(38, 'Insert new air filter', 'Insert the new air filter into the housing', 'air_filter'),
+(39, 'Seat filter properly', 'Ensure the filter is properly seated', 'air_filter'),
+(40, 'Secure housing cover', 'Replace the housing cover and secure clips/screws', 'clips'),
+(41, 'Close hood', 'Close the hood', 'hood'),
+
+-- Spark Plug Replacement Steps (IDs 42-52)
+(42, 'Locate spark plug wires', 'Open the hood and locate the spark plug wires or coil packs', 'ignition_coils'),
+(43, 'Remove wire or coil pack', 'Remove the first spark plug wire or coil pack', 'spark_plug_wire'),
+(44, 'Clean spark plug area', 'Use compressed air to clean around the spark plug', 'compressed_air'),
+(45, 'Remove old spark plug', 'Use a spark plug socket to remove the old spark plug', 'spark_plug_socket'),
+(46, 'Check spark plug gap', 'Check the spark plug gap on the new plug', 'gap_tool'),
+(47, 'Apply anti-seize', 'Apply anti-seize compound to the plug threads (if recommended)', 'anti_seize'),
+(48, 'Hand-thread new plug', 'Hand-thread the new spark plug into the cylinder head', 'spark_plug'),
+(49, 'Tighten to torque spec', 'Tighten the spark plug to specified torque', 'torque_wrench'),
+(50, 'Reconnect wire/coil', 'Reconnect the spark plug wire or coil pack', 'spark_plug_wire'),
+(51, 'Repeat for all plugs', 'Repeat for all remaining spark plugs', 'spark_plugs'),
+(52, 'Start engine', 'Close the hood and start the engine', 'ignition_key'),
+
+-- Battery Replacement Steps (IDs 53-66)
+(53, 'Turn off engine', 'Turn off the engine and remove the key', 'ignition_key'),
+(54, 'Locate battery', 'Open the hood and locate the battery', 'battery'),
+(55, 'Identify terminals', 'Identify positive and negative battery terminals', 'battery'),
+(56, 'Disconnect negative terminal', 'Disconnect the negative terminal first using a wrench', 'negative_terminal'),
+(57, 'Disconnect positive terminal', 'Disconnect the positive terminal', 'positive_terminal'),
+(58, 'Remove hold-down bracket', 'Remove the battery hold-down bracket or clamp', 'battery_clamp'),
+(59, 'Lift out old battery', 'Carefully lift the old battery out of the vehicle', 'battery'),
+(60, 'Clean battery tray', 'Clean the battery tray and terminals', 'wire_brush'),
+(61, 'Place new battery', 'Place the new battery in the tray', 'battery'),
+(62, 'Install hold-down bracket', 'Install the battery hold-down bracket', 'battery_clamp'),
+(63, 'Connect positive terminal', 'Connect the positive terminal first and tighten', 'positive_terminal'),
+(64, 'Connect negative terminal', 'Connect the negative terminal and tighten', 'negative_terminal'),
+(65, 'Apply terminal protector', 'Apply terminal protector spray to prevent corrosion', 'terminal_protector'),
+(66, 'Test vehicle', 'Close the hood and test the vehicle', 'ignition_key');
+
+-- ============================================
+-- SEED DATA: Car_Procedures (Which procedures apply to which cars)
+-- ============================================
+INSERT INTO Car_Procedures (ModelID, ProcedureID) VALUES
 -- Toyota Camry 2020 (ModelID 1)
 (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 9), (1, 10), (1, 15),
 -- Toyota Corolla 2021 (ModelID 2)
@@ -291,35 +292,35 @@ INSERT INTO Car_Lessons (ModelID, LessonID) VALUES
 (24, 1), (24, 2), (24, 3), (24, 4), (24, 5), (24, 6), (24, 9), (24, 10), (24, 15);
 
 -- ============================================
--- SEED DATA: Lesson_Instructions (Ordered steps for each lesson)
+-- SEED DATA: Procedure_Steps (Ordered steps for each procedure)
 -- ============================================
 
--- Oil Change Lesson (LessonID 1)
-INSERT INTO Lesson_Instructions (LessonID, InstructionID, StepNum) VALUES
+-- Oil Change Procedure (ProcedureID 1)
+INSERT INTO Procedure_Steps (ProcedureID, StepID, OrderNum) VALUES
 (1, 1, 1), (1, 2, 2), (1, 3, 3), (1, 4, 4), (1, 5, 5),
 (1, 6, 6), (1, 7, 7), (1, 8, 8), (1, 9, 9), (1, 10, 10),
 (1, 11, 11), (1, 12, 12), (1, 13, 13), (1, 14, 14);
 
--- Brake Pad Replacement Lesson (LessonID 2)
-INSERT INTO Lesson_Instructions (LessonID, InstructionID, StepNum) VALUES
+-- Brake Pad Replacement Procedure (ProcedureID 2)
+INSERT INTO Procedure_Steps (ProcedureID, StepID, OrderNum) VALUES
 (2, 15, 1), (2, 16, 2), (2, 17, 3), (2, 18, 4), (2, 19, 5),
 (2, 20, 6), (2, 21, 7), (2, 22, 8), (2, 23, 9), (2, 24, 10),
 (2, 25, 11), (2, 26, 12), (2, 27, 13), (2, 28, 14), (2, 29, 15),
 (2, 30, 16), (2, 31, 17), (2, 32, 18);
 
--- Air Filter Replacement Lesson (LessonID 3)
-INSERT INTO Lesson_Instructions (LessonID, InstructionID, StepNum) VALUES
+-- Air Filter Replacement Procedure (ProcedureID 3)
+INSERT INTO Procedure_Steps (ProcedureID, StepID, OrderNum) VALUES
 (3, 33, 1), (3, 34, 2), (3, 35, 3), (3, 36, 4), (3, 37, 5),
 (3, 38, 6), (3, 39, 7), (3, 40, 8), (3, 41, 9);
 
--- Spark Plug Replacement Lesson (LessonID 4)
-INSERT INTO Lesson_Instructions (LessonID, InstructionID, StepNum) VALUES
+-- Spark Plug Replacement Procedure (ProcedureID 4)
+INSERT INTO Procedure_Steps (ProcedureID, StepID, OrderNum) VALUES
 (4, 42, 1), (4, 43, 2), (4, 44, 3), (4, 45, 4), (4, 46, 5),
 (4, 47, 6), (4, 48, 7), (4, 49, 8), (4, 50, 9), (4, 51, 10),
 (4, 52, 11);
 
--- Battery Replacement Lesson (LessonID 6)
-INSERT INTO Lesson_Instructions (LessonID, InstructionID, StepNum) VALUES
+-- Battery Replacement Procedure (ProcedureID 6)
+INSERT INTO Procedure_Steps (ProcedureID, StepID, OrderNum) VALUES
 (6, 53, 1), (6, 54, 2), (6, 55, 3), (6, 56, 4), (6, 57, 5),
 (6, 58, 6), (6, 59, 7), (6, 60, 8), (6, 61, 9), (6, 62, 10),
 (6, 63, 11), (6, 64, 12), (6, 65, 13), (6, 66, 14);
