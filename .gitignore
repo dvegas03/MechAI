@@ -97,3 +97,39 @@ Assets/Plugins/Android/*-release.aar
 # ========== IMAGES & TEXTURES (only if generated dynamically) ==========
 Assets/**/@tmp*.*
 Assets/**/~tmp*.*
+
+# ========== FRONTEND (React/Vite) ==========
+# Dependencies
+frontend/node_modules/
+
+# Build output
+frontend/build/
+frontend/dist/
+frontend/.vite/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Vite cache
+frontend/.vite/
+frontend/vite.config.ts.timestamp-*
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# Editor directories and files
+frontend/.idea/
+frontend/.vscode/
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
