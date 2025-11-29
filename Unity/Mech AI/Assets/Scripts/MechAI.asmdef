@@ -1,0 +1,22 @@
+{
+    "name": "MechAI",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Barracuda",
+        "com.whisper.unity",
+        "Unity.TextMeshPro",
+        "Meta.WitAi.TTS",
+        "Meta.WitAi.Lib",
+        "VoiceSDK.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+

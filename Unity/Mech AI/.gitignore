@@ -1,0 +1,64 @@
+# ==========================================================================
+# UNITY PROJECT GITIGNORE
+# ==========================================================================
+
+# ========== UNITY GENERATED ==========
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]serSettings/
+/[Mm]emoryCaptures/
+
+# ========== IDE / EDITOR ==========
+*.sln
+*.csproj
+*.unityproj
+.vscode/
+.idea/
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+
+# ========== BUILD OUTPUTS ==========
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+*.ipa
+
+# ========== ASSET BUNDLES ==========
+Assets/StreamingAssets/aa/
+Assets/StreamingAssets/aa.meta
+*.bundle
+
+# ========== ADDRESSABLES ==========
+/[Ll]ibrary/com.unity.addressables/
+Assets/AddressableAssetsData/*/*.bin*
+Assets/AddressableAssetsData/*/*.catalog.json
+
+# ========== CRASH REPORTS ==========
+sysinfo.txt
+crash-report-*.log
+*.log
+
+# ========== OS SPECIFIC ==========
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========== LIGHTMAPS ==========
+Assets/**/Lightmap-*.exr
+Assets/**/ReflectionProbe-*.exr
+
+# ========== TEMP FILES ==========
+Assets/**/@tmp*.*
+Assets/**/~tmp*.*
+*.tmp
+*.temp
+
