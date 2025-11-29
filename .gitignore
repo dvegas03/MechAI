@@ -97,3 +97,102 @@ Assets/Plugins/Android/*-release.aar
 # ========== IMAGES & TEXTURES (only if generated dynamically) ==========
 Assets/**/@tmp*.*
 Assets/**/~tmp*.*
+
+# ==========================================================================
+# MODEL TRAINING (YOLO / PyTorch / ML)
+# ==========================================================================
+
+# ========== PRETRAINED MODEL WEIGHTS ==========
+# Large model files - download separately or use Git LFS
+model/*.pt
+model/*.pth
+model/*.onnx
+model/*.engine
+model/*.tflite
+model/*.pb
+model/*.h5
+model/*.keras
+model/*.safetensors
+
+# ========== TRAINING RUNS & OUTPUTS ==========
+# Training results can be regenerated
+model/runs/
+model/output/
+model/outputs/
+model/checkpoints/
+model/weights/
+model/experiments/
+
+# ========== DATASETS ==========
+# Large dataset files - store externally (S3, GCS, etc.)
+model/dataset/images/
+model/dataset/labels/
+model/dataset/yolo_data/
+model/data/
+
+# ========== PYTHON CACHE ==========
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# ========== JUPYTER NOTEBOOKS ==========
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# ========== PICKLE / SERIALIZED DATA ==========
+*.pkl
+*.pickle
+
+# ========== TENSORBOARD LOGS ==========
+tensorboard/
+tb_logs/
+lightning_logs/
+
+# ========== WANDB / MLflow ==========
+wandb/
+mlruns/
+
+# ========== MISC ML FILES ==========
+*.cache
+*.npy
+*.npz
+
+# ==========================================================================
+# ADDITIONAL UNITY ITEMS
+# ==========================================================================
+
+# ========== UNITY SPECIFIC CACHE ==========
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]serSettings/
+
+# Unity nested project paths
+Unity/*/[Ll]ibrary/
+Unity/*/[Tt]emp/
+Unity/*/[Oo]bj/
+Unity/*/[Ll]ogs/
+Unity/*/[Uu]serSettings/
+Unity/*/*.sln
+Unity/*/*.csproj
+
+# ========== ENVIRONMENT VARIABLES ==========
+.env
+.env.local
+.env.*.local
+*.env
+
+# ========== SECRETS / API KEYS ==========
+secrets/
+credentials/
+*.pem
+*.key
