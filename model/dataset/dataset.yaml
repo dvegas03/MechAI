@@ -1,0 +1,30 @@
+path: /mnt/c/Users/dvegas03/Documents/Git/MechAI/model/dataset/yolo_data
+train: /mnt/c/Users/dvegas03/Documents/Git/MechAI/model/dataset/yolo_data/images/train
+val: /mnt/c/Users/dvegas03/Documents/Git/MechAI/model/dataset/yolo_data/images/val
+names:
+  0: Inverter Coolant Reservoir
+  1: Battery
+  2: Radiator Cap
+  3: Windshield Wiper Fluid
+  4: Fuse Box
+  5: Power Steering Reservoir
+  6: Brake Fluid
+  7: Engine Oil Fill Cap
+  8: Engine Oil Dip Stick
+  9: Air Filter Cover
+  10: ABS Unit
+  11: Alternator
+  12: Engine Coolant Reservoir
+  13: Radiator
+  14: Air Filter
+  15: Engine Cover
+  16: Cold Air Intake
+  17: Clutch Fluid Reservoir
+  18: Transmission Oil Dip Stick
+  19: Intercooler Coolant Reservoir
+  20: Oil Filter Housing
+  21: ATF Oil Reservoir
+  22: Cabin Air Filter Housing
+  23: Secondary Coolant Reservoir
+  24: Electric Motor
+  25: Oil Filter

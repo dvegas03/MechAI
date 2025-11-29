@@ -1,0 +1,48 @@
+# ==========================================================================
+# MODEL TRAINING GITIGNORE
+# ==========================================================================
+
+# ========== PRETRAINED WEIGHTS (download separately) ==========
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+*.pb
+*.h5
+*.keras
+*.safetensors
+
+# ========== TRAINING RUNS ==========
+runs/
+
+# ========== DATASETS (too large for git) ==========
+dataset/images/
+dataset/labels/
+dataset/yolo_data/
+
+# ========== SERIALIZED DATA ==========
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.cache
+
+# ========== PYTHON ==========
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+env/
+
+# ========== JUPYTER ==========
+.ipynb_checkpoints/
+
+# ========== KEEP THESE FILES ==========
+# Unignore config files
+!dataset/dataset.yaml
+!requirements.txt
+!*.ipynb
+
