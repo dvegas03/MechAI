@@ -2,7 +2,7 @@
 
 An XR assistant for car maintenance. Point the headset at an open hood: a YOLO model detects the parts, the app highlights them in place and suggests repairs.
 
-Built for CS 116A Introduction to Computer Graphics, San Jose State University, Fall 2025, by a team of three. My part: training the YOLO detector and building the Unity XR app.
+Built for CS 116A Introduction to Computer Graphics, San Jose State University, Fall 2025, by a team of three.
 
 ## What is in the repo
 
